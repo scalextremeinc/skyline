@@ -10,6 +10,7 @@ sys.path.insert(0, dirname(dirname(abspath(__file__))))
 import settings
 
 from analyzer import Analyzer
+from storage_mysql import StorageMysql
 
 class AnalyzerAgent():
     def __init__(self):
@@ -21,7 +22,9 @@ class AnalyzerAgent():
 
     def run(self):
         logger.info('starting skyline analyzer')
-        Analyzer(getpid()).start()
+        storage = StorageMysql(settings.STORAGE_MYSQL_HOST, settings.STORAGE_MYSQL_USER,
+            settings.STORAGE_MYSQL_PASS, settings.STORAGE_MYSQL_DB)
+        Analyzer(getpid(), storage).start()
 
         while 1:
             time.sleep(100)

@@ -237,9 +237,13 @@ def run_selected_algorithm(timeseries):
         ensemble = [globals()[algorithm](timeseries) for algorithm in ALGORITHMS]
         threshold = len(ensemble) - CONSENSUS
         if ensemble.count(False) <= threshold:
-            return True, ensemble, tail_avg(timeseries)
+            try:
+                ts = timeseries[-2][0]
+            except IndexError:
+                ts = timeseries[-1][0]
+            return True, ensemble, tail_avg(timeseries), ts
 
-        return False, ensemble, timeseries[-1][1]
+        return False, ensemble, timeseries[-1][1], timeseries[-1][0]
     except:
         logging.error("Algorithm error: " + traceback.format_exc())
         return False, [], 1

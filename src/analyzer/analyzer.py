@@ -21,7 +21,7 @@ from algorithm_exceptions import *
 logger = logging.getLogger("AnalyzerLog")
 
 class Analyzer(Thread):
-    def __init__(self, parent_pid):
+    def __init__(self, parent_pid, storage):
         """
         Initialize the Analyzer
         """
@@ -34,6 +34,7 @@ class Analyzer(Thread):
         self.exceptions = Manager().dict()
         self.anomaly_breakdown = Manager().dict()
         self.anomalous_metrics = Manager().list()
+        self.storage = storage
 
     def check_if_parent_is_alive(self):
         """
@@ -82,12 +83,12 @@ class Analyzer(Thread):
                 unpacker.feed(raw_series)
                 timeseries = list(unpacker)
 
-                anomalous, ensemble, datapoint = run_selected_algorithm(timeseries)
+                anomalous, ensemble, datapoint, ts = run_selected_algorithm(timeseries)
 
                 # If it's anomalous, add it to list
                 if anomalous:
                     base_name = metric_name.replace(settings.FULL_NAMESPACE, '', 1)
-                    metric = [datapoint, base_name]
+                    metric = [datapoint, base_name, ts]
                     self.anomalous_metrics.append(metric)
 
                     # Get the anomaly breakdown - who returned True?
@@ -199,6 +200,9 @@ class Analyzer(Thread):
                 anomalous_metrics = list(self.anomalous_metrics)
                 anomalous_metrics.sort(key=operator.itemgetter(1))
                 fh.write('handle_data(%s)' % anomalous_metrics)
+            
+            # store anomalous metrics
+            self.storage.save(self.anomalous_metrics)
 
             # Log progress
             logger.info('seconds to run    :: %.2f' % (time() - now))
