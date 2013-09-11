@@ -17,7 +17,7 @@ from settings import (
 
 from algorithm_exceptions import *
 
-logger = logging.getLogger("AnalyzerLog")
+logger = logging.getLogger(__name__)
 
 """
 This is no man's land. Do anything you want in here,

@@ -19,7 +19,7 @@ from algorithms import run_selected_algorithm
 from algorithm_exceptions import *
 from alerter import Alerter
 
-logger = logging.getLogger("AnalyzerLog")
+logger = logging.getLogger(__name__)
 
 class Analyzer(Thread):
     def __init__(self, parent_pid, storage):

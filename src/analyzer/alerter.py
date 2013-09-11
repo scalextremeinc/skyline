@@ -18,6 +18,7 @@ class Alerter(object):
         
         alert = self.cache.get(anomaly[1])
         if alert is None:
+            #  0          1             2       3
             # [anomalies, anomalies_ts, config, config_ts]
             alert = [[], None, None, None]
             self.cache[anomaly[1]] = alert
