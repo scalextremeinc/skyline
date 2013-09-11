@@ -219,6 +219,7 @@ class Analyzer(Thread):
             
             # send ready alerts
             if settings.ENABLE_ALERTS:
+                logger.info('Sending alerts')
                 self.alerter.send_alerts()
 
             # Log progress
