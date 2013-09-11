@@ -25,14 +25,17 @@ class StorageMysql(object):
         self.mysql = _mysql.connect(host=self.mysql_host, port=self.mysql_port,
             user=self.mysql_user, passwd=self.mysql_pass, db=self.mysql_db)
     
-    def save(self, anomalies):
+    def saveAll(self, anomalies):
         for a in anomalies:
-            value = a[0]
-            metric_name, host_name = self.__split_metric(a[1])
-            ts = a[2]
-            hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host_name)
-            metricid = self.__get_id(StorageMysql.TABLE_METRICS, self.metric_cache, metric_name)
-            self.__insert_anomaly(hostid, metricid, value, ts)
+            self.save(a)
+    
+    def save(self, anomaly):
+        value = anomaly[0]
+        metric_name, host_name = self.__split_metric(anomaly[1])
+        ts = anomaly[2]
+        hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host_name)
+        metricid = self.__get_id(StorageMysql.TABLE_METRICS, self.metric_cache, metric_name)
+        self.__insert_anomaly(hostid, metricid, value, ts)
     
     def __split_metric(self, metric):
         i = metric.rfind('@')

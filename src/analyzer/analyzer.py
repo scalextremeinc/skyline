@@ -202,7 +202,15 @@ class Analyzer(Thread):
                 fh.write('handle_data(%s)' % anomalous_metrics)
             
             # store anomalous metrics
-            self.storage.save(self.anomalous_metrics)
+            for metric in self.anomalous_metrics:
+                try:
+                    last_save = self.redis_conn.get('last_save.' + metric[1])
+                    if not last_save:
+                        self.redis_conn.setex('last_save.' + metric[1],
+                            settings.STORAGE_SAVE_FREQUENCY, packb(metric[0]))
+                        self.storage.save(metric)
+                except Exception as e:
+                    logger.error("Failed saveing metric: %s, error: %s", metric[1], e)
 
             # Log progress
             logger.info('seconds to run    :: %.2f' % (time() - now))
