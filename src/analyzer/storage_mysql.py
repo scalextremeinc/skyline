@@ -1,13 +1,14 @@
 import logging
 import _mysql
 
-LOG = logging.getLogger("AnalyzerLog")
+LOG = logging.getLogger(__name__)
 
 class StorageMysql(object):
     
     TABLE_HOSTS = 'skyline_hosts'
     TABLE_METRICS = 'skyline_metrics'
     TABLE_ANOMALIES = 'skyline_anomalies'
+    TABLE_CONFIG = 'skyline_config'
     
     def __init__(self, mysql_host, mysql_user, mysql_pass,
             mysql_db='skyline', mysql_port=3306):
@@ -71,3 +72,17 @@ class StorageMysql(object):
             % (StorageMysql.TABLE_ANOMALIES, hostid, metricid, value, ts)
         LOG.debug(q)
         self.mysql.query(q)
+    
+    def get_alert_config(self, host_name, metric_name):
+        hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host_name)
+        metricid = self.__get_id(StorageMysql.TABLE_METRICS, self.metric_cache, metric_name)
+        q = "SELECT * FROM %s WHERE hostid=%s AND metricid=%s LIMIT 1" \
+            % (TABLE_CONFIG, hostid, metricid)
+        LOG.debug(q)
+        self.mysql.query(q)
+        result = self.mysql.use_result()
+        rows = result.fetch_row(maxrows=1)
+        if rows is not None and len(rows) == 1:
+            #return rows[0][0]
+            return {}
+        return None

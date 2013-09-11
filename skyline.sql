@@ -17,3 +17,9 @@ CREATE TABLE `skyline_anomalies` (
   `ts` int(11) NOT NULL,
   KEY `index_1` (`hostid`,`metricid`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `skyline_config` (
+  `hostid` bigint(20) unsigned NOT NULL,
+  `metricid` bigint(20) unsigned NOT NULL,
+  KEY `index_1` (`hostid`,`metricid`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;

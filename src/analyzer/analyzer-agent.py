@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     analyzer = AnalyzerAgent()
 
-    logger = logging.getLogger("AnalyzerLog")
+    logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(asctime)s :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     handler = logging.FileHandler(settings.LOG_PATH + '/analyzer.log')

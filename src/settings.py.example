@@ -180,3 +180,17 @@ WEBAPP_IP = '127.0.0.1'
 # The port for the webapp
 WEBAPP_PORT = 1500
 
+"""
+scalex settings
+"""
+
+# how often save anomaly for the same metric
+STORAGE_SAVE_FREQUENCY = 1800
+
+STORAGE_MYSQL_HOST = 'scalex2'
+STORAGE_MYSQL_USER = 'root'
+STORAGE_MYSQL_PASS = ''
+STORAGE_MYSQL_DB = 'skyline'
+
+ALERT_CONFIG_TIME = 900
+ALERT_AGGREGATE_TIME = 180

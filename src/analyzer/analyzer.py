@@ -17,6 +17,7 @@ import settings
 
 from algorithms import run_selected_algorithm
 from algorithm_exceptions import *
+from alerter import Alerter
 
 logger = logging.getLogger("AnalyzerLog")
 
@@ -35,6 +36,7 @@ class Analyzer(Thread):
         self.anomaly_breakdown = Manager().dict()
         self.anomalous_metrics = Manager().list()
         self.storage = storage
+        self.alerter = Alerter(storage)
 
     def check_if_parent_is_alive(self):
         """
@@ -181,17 +183,17 @@ class Analyzer(Thread):
                 p.join()
 
             # Send alerts
-            if settings.ENABLE_ALERTS:
-                for alert in settings.ALERTS:
-                    for metric in self.anomalous_metrics:
-                        if alert[0] in metric[1]:
-                            try:
-                                last_alert = self.redis_conn.get('last_alert.' + metric[1])
-                                if not last_alert:
-                                    self.redis_conn.setex('last_alert.' + metric[1], alert[2], packb(metric[0]))
-                                    self.send_mail(alert, metric)
-                            except Exception as e:
-                                logger.error("couldn't send alert: %s" % e)
+            #if settings.ENABLE_ALERTS:
+            #    for alert in settings.ALERTS:
+            #        for metric in self.anomalous_metrics:
+            #            if alert[0] in metric[1]:
+            #                try:
+            #                    last_alert = self.redis_conn.get('last_alert.' + metric[1])
+            #                    if not last_alert:
+            #                        self.redis_conn.setex('last_alert.' + metric[1], alert[2], packb(metric[0]))
+            #                        self.send_mail(alert, metric)
+            #                except Exception as e:
+            #                    logger.error("couldn't send alert: %s" % e)
 
             # Write anomalous_metrics to static webapp directory
             filename = path.abspath(path.join(path.dirname( __file__ ), '..', settings.ANOMALY_DUMP))
@@ -201,7 +203,7 @@ class Analyzer(Thread):
                 anomalous_metrics.sort(key=operator.itemgetter(1))
                 fh.write('handle_data(%s)' % anomalous_metrics)
             
-            # store anomalous metrics
+            # process anomalous metrics
             for metric in self.anomalous_metrics:
                 try:
                     last_save_key = 'last_save.%s.%s' % (metric[1], metric[2])
@@ -210,8 +212,13 @@ class Analyzer(Thread):
                         self.redis_conn.setex(last_save_key,
                             settings.STORAGE_SAVE_FREQUENCY, packb(metric[0]))
                         self.storage.save(metric)
+                        if settings.ENABLE_ALERTS:
+                            self.alerter.add(metric)
                 except Exception as e:
-                    logger.error("Failed saving metric: %s, error: %s", metric[1], e)
+                    logger.error("Failed processing anomaly, metric: %s, error: %s", metric[1], e)
+            
+            # send ready alerts
+            self.alerter.send_alerts()
 
             # Log progress
             logger.info('seconds to run    :: %.2f' % (time() - now))
