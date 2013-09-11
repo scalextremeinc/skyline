@@ -224,7 +224,10 @@ class Analyzer(Thread):
             
             # send ready alerts
             if settings.ENABLE_ALERTS:
-                self.alerter.send_alerts()
+                try:
+                    self.alerter.send_alerts()
+                except Exception as e:
+                    logger.error("Failed sending alerts, error: %s", e)
 
             # Log progress
             logger.info('seconds to run    :: %.2f' % (time() - now))
