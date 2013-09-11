@@ -75,9 +75,8 @@ class StorageMysql(object):
     
     def get_alert_config(self, host_name):
         hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host_name)
-        #metricid = self.__get_id(StorageMysql.TABLE_METRICS, self.metric_cache, metric_name)
         q = "SELECT m.value FROM %s as c, %s as m WHERE c.hostid=%s AND c.metricid=m.id LIMIT 1" \
-            % (StorageMysql.TABLE_CONFIG, StorageMysql.TABLE_METRICS, hostid, metricid)
+            % (StorageMysql.TABLE_CONFIG, StorageMysql.TABLE_METRICS, hostid)
         LOG.debug(q)
         self.mysql.query(q)
         result = self.mysql.use_result()
