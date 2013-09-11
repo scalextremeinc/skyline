@@ -18,12 +18,12 @@ class Alerter(object):
         metric_name, host_name = self.__split_metric(anomaly[1])
         ts = anomaly[2]
         
-        alert = self.cache.get(anomaly[1])
+        alert = self.cache.get(host_name)
         if alert is None:
             #  0          1             2       3
             # [anomalies, anomalies_ts, config, config_ts]
             alert = [[], None, None, None]
-            self.cache[anomaly[1]] = alert
+            self.cache[host_name] = alert
         
         if alert[3] is None or alert[3] + settings.ALERT_CONFIG_TIME <= now:
             config = self.storage.get_alert_config(host_name, metric_name)
