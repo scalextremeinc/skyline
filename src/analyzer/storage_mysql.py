@@ -1,7 +1,7 @@
 import logging
 import _mysql
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger("AnalyzerLog")
 
 class StorageMysql(object):
     
@@ -29,10 +29,10 @@ class StorageMysql(object):
         for a in anomalies:
             value = a[0]
             metric_name, host_name = self.__split_metric(a[1])
-            ts = a[1]
+            ts = a[2]
             hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host_name)
             metricid = self.__get_id(StorageMysql.TABLE_METRICS, self.metric_cache, metric_name)
-            self.insert_anomaly(hostid, metricid, value, ts)
+            self.__insert_anomaly(hostid, metricid, value, ts)
     
     def __split_metric(self, metric):
         i = metric.rfind('@')
@@ -48,7 +48,7 @@ class StorageMysql(object):
         return id
     
     def __select_id(self, table, value):
-        q = "SELECT id FROM %s WHERE value='%s' LIMIT 1" % (table, value)
+        q = "SELECT id FROM %s WHERE value='%s' LIMIT 1" % (table, self.mysql.escape_string(value))
         LOG.debug(q)
         self.mysql.query(q)
         result = self.mysql.use_result()
@@ -58,7 +58,7 @@ class StorageMysql(object):
         return None
     
     def __insert_id(self, table, value):
-        q = "INSERT INTO %s(value) VALUES('%s')" % (table, value)
+        q = "INSERT INTO %s(value) VALUES('%s')" % (table, self.mysql.escape_string(value))
         LOG.debug(q)
         self.mysql.query(q)
         return self.mysql.insert_id()
@@ -68,5 +68,3 @@ class StorageMysql(object):
             % (StorageMysql.TABLE_ANOMALIES, hostid, metricid, value, ts)
         LOG.debug(q)
         self.mysql.query(q)
-        
-            
