@@ -204,14 +204,14 @@ class Analyzer(Thread):
             # store anomalous metrics
             for metric in self.anomalous_metrics:
                 try:
-                    last_save_key = 'last_save.' + metric[1] + '.' + metric[2]
+                    last_save_key = 'last_save.%s.%s' % (metric[1], metric[2])
                     last_save = self.redis_conn.get(last_save_key)
                     if not last_save:
                         self.redis_conn.setex(last_save_key,
                             settings.STORAGE_SAVE_FREQUENCY, packb(metric[0]))
                         self.storage.save(metric)
                 except Exception as e:
-                    logger.error("Failed saveing metric: %s, error: %s", metric[1], e)
+                    logger.error("Failed saving metric: %s, error: %s", metric[1], e)
 
             # Log progress
             logger.info('seconds to run    :: %.2f' % (time() - now))
