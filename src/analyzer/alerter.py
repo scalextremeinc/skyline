@@ -1,6 +1,8 @@
 import logging
 import time
 
+import settings
+
 LOG = logging.getLogger(__name__)
 
 class Alerter(object):
