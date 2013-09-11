@@ -80,10 +80,12 @@ class StorageMysql(object):
         LOG.debug(q)
         self.mysql.query(q)
         result = self.mysql.use_result()
-        rows = result.fetch_row()
-        if rows is not None and len(rows) > 0:
-            cfg = {}
+        
+        cfg = {}
+        rows = result.fetch_row(maxrows=100)
+        while rows is not None and len(rows):
             for row in rows:
                 cfg[row[0]] = True
-            return cfg
-        return None
+            rows = result.fetch_row(maxrows=100)
+        
+        return cfg
