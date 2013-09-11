@@ -47,6 +47,6 @@ class Alerter(object):
                 # empty anomalies aggregator
                 alert[0] = []
                 alert[1] = None
-            if alert[1] is None
+            if alert[1] is None \
                     and (alert[3] is None or alert[3] + settings.ALERT_CONFIG_TIME <= now):
                 del self.cache[key]
