@@ -22,15 +22,14 @@ class Alerter(object):
         if alert is None:
             #  0          1             2       3
             # [anomalies, anomalies_ts, config, config_ts]
-            alert = [[], None, None, None]
+            alert = [[], None, {}, None]
             self.cache[host_name] = alert
         
         if alert[3] is None or alert[3] + settings.ALERT_CONFIG_TIME <= now:
-            config = self.storage.get_alert_config(host_name, metric_name)
-            alert[2] = config
+            alert[2] = self.storage.get_alert_config(host_name)
             alert[3] = now
         
-        if alert[2] is not None:
+        if alert[2] is not None and metric_name in alert[2]:
             alert[0].append((host_name, metric_name, ts, value))
             if alert[1] is None:
                 # start aggregation window

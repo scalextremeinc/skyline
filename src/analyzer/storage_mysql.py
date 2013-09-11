@@ -73,16 +73,18 @@ class StorageMysql(object):
         LOG.debug(q)
         self.mysql.query(q)
     
-    def get_alert_config(self, host_name, metric_name):
+    def get_alert_config(self, host_name):
         hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host_name)
-        metricid = self.__get_id(StorageMysql.TABLE_METRICS, self.metric_cache, metric_name)
-        q = "SELECT * FROM %s WHERE hostid=%s AND metricid=%s LIMIT 1" \
-            % (StorageMysql.TABLE_CONFIG, hostid, metricid)
+        #metricid = self.__get_id(StorageMysql.TABLE_METRICS, self.metric_cache, metric_name)
+        q = "SELECT m.value FROM %s as c, %s as m WHERE c.hostid=%s AND c.metricid=m.id LIMIT 1" \
+            % (StorageMysql.TABLE_CONFIG, StorageMysql.TABLE_METRICS, hostid, metricid)
         LOG.debug(q)
         self.mysql.query(q)
         result = self.mysql.use_result()
-        rows = result.fetch_row(maxrows=1)
-        if rows is not None and len(rows) == 1:
-            #return rows[0][0]
-            return {}
+        rows = result.fetch_row()
+        if rows is not None and len(rows) > 0:
+            cfg = {}
+            for row in rows:
+                cfg[row[0]] = True
+            return cfg
         return None
