@@ -77,7 +77,7 @@ class StorageMysql(object):
         hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host_name)
         metricid = self.__get_id(StorageMysql.TABLE_METRICS, self.metric_cache, metric_name)
         q = "SELECT * FROM %s WHERE hostid=%s AND metricid=%s LIMIT 1" \
-            % (TABLE_CONFIG, hostid, metricid)
+            % (StorageMysql.TABLE_CONFIG, hostid, metricid)
         LOG.debug(q)
         self.mysql.query(q)
         result = self.mysql.use_result()
