@@ -218,7 +218,8 @@ class Analyzer(Thread):
                     logger.error("Failed processing anomaly, metric: %s, error: %s", metric[1], e)
             
             # send ready alerts
-            self.alerter.send_alerts()
+            if settings.ENABLE_ALERTS:
+                self.alerter.send_alerts()
 
             # Log progress
             logger.info('seconds to run    :: %.2f' % (time() - now))
