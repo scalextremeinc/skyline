@@ -185,7 +185,7 @@ scalex settings
 """
 
 # how often save anomaly for the same metric
-STORAGE_SAVE_FREQUENCY = 1800
+SKIP_FREQUENCY = 1800
 
 STORAGE_MYSQL_HOST = 'scalex2'
 STORAGE_MYSQL_USER = 'root'

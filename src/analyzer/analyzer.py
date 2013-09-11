@@ -210,9 +210,14 @@ class Analyzer(Thread):
                     last_save = self.redis_conn.get(last_save_key)
                     if not last_save:
                         self.redis_conn.setex(last_save_key,
-                            settings.STORAGE_SAVE_FREQUENCY, packb(metric[0]))
+                            settings.SKIP_FREQUENCY, packb(metric[0]))
                         self.storage.save(metric)
-                        if settings.ENABLE_ALERTS:
+                    if settings.ENABLE_ALERTS:
+                        last_alert_key = 'last_alert.' + metric[1]
+                        last_alert = self.redis_conn.get(last_alert_key)
+                        if not last_alert:
+                            self.redis_conn.setex(last_alert_key,
+                                settings.SKIP_FREQUENCY, packb(metric[0]))
                             self.alerter.add(metric)
                 except Exception as e:
                     logger.error("Failed processing anomaly, metric: %s, error: %s", metric[1], e)
