@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    formatter = logging.Formatter("%(asctime)s :: %(name)s :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     handler = logging.FileHandler(settings.LOG_PATH + '/analyzer.log')
     handler.setFormatter(formatter)
     logger.addHandler(handler)

@@ -41,6 +41,7 @@ class Alerter(object):
     
     def send_alerts(self):
         now = time.time()
+        expired = []
         for key, alert in self.cache.iteritems():
             if alert[1] is not None and alert[1] + settings.ALERT_AGGREGATE_TIME <= now:
                 LOG.info("Sending alert: %s", alert)
@@ -51,4 +52,6 @@ class Alerter(object):
                 alert[1] = None
             if alert[1] is None \
                     and (alert[3] is None or alert[3] + settings.ALERT_CONFIG_TIME <= now):
-                del self.cache[key]
+                expired.append(key)
+        for key in expired:        
+            del self.cache[key]
