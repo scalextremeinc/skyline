@@ -29,7 +29,7 @@ class Alerter(object):
             alert[2] = self.storage.get_alert_config(host_name)
             alert[3] = now
         
-        if metric_name in alert[2]:
+        if metric_name not in alert[2]:
             alert[0].append((host_name, metric_name, ts, value))
             if alert[1] is None:
                 # start aggregation window
