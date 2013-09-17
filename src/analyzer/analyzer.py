@@ -220,7 +220,8 @@ class Analyzer(Thread):
                                 settings.SKIP_FREQUENCY, packb(metric[0]))
                             self.alerter.add(metric)
                 except Exception as e:
-                    logger.error("Failed processing anomaly, metric: %s, error: %s", metric[1], e)
+                    logger.error("Failed processing anomaly, pid: %s, metric: %s, error: %s",
+                        getpid(), metric[1], e)
             
             # send ready alerts
             if settings.ENABLE_ALERTS:
