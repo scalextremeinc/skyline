@@ -60,8 +60,8 @@ def anomalies():
     if not host:
         resp = json.dumps({'results': 'Error: Host param is required'})
         return resp, 400
-    page = request.args.get('page', 0)
-    limit = request.args.get('limit', 50)
+    page = int(request.args.get('page', 0))
+    limit = int(request.args.get('limit', 50))
     anomalies = storage.get_anomalies(host, page, limit)
     return json.dumps(anomalies)
 
