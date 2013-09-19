@@ -56,7 +56,10 @@ storage = StorageMysql(settings.STORAGE_MYSQL_HOST, settings.STORAGE_MYSQL_USER,
 
 @app.route("/api/anomalies", methods=['GET'])
 def anomalies():
-    host = request.args.get('host', None)
+    host = request.args.get('host')
+    if not host:
+        resp = json.dumps({'results': 'Error: Host param is required'})
+        return resp, 400
     page = request.args.get('page', 0)
     limit = request.args.get('limit', 50)
     anomalies = storage.get_anomalies(host, page, limit)
