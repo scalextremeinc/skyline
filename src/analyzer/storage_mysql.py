@@ -29,7 +29,7 @@ class StorageMysql(object):
     def saveAll(self, anomalies):
         for a in anomalies:
             self.save(a)
-    
+
     def save(self, anomaly):
         value = anomaly[0]
         metric_name, host_name = self.__split_metric(anomaly[1])

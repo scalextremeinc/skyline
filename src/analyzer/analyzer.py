@@ -203,6 +203,9 @@ class Analyzer(Thread):
                 anomalous_metrics.sort(key=operator.itemgetter(1))
                 fh.write('handle_data(%s)' % anomalous_metrics)
             
+            # reconnect storage
+            self.storage.connect()
+            
             # process anomalous metrics
             for metric in self.anomalous_metrics:
                 try:

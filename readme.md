@@ -19,10 +19,13 @@ Read the details in the [wiki](https://github.com/etsy/skyline/wiki).
 
 ## Install
 
+CentOS:
+yum install  blas-devel atlas-devel
+
 1. `sudo pip install -r requirements.txt` for the easy bits
 
 2. Install numpy, scipy, pandas, patsy, statsmodels, msgpack_python in that
-order.
+order. (install numpy and scipy from python packages manually - python setup.py install)
 
 2. You may have trouble with SciPy. If you're on a Mac, try:
 
