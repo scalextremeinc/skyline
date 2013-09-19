@@ -7,9 +7,11 @@ from flask import Flask, request, render_template
 from daemon import runner
 from os.path import dirname, abspath
 
+
 # add the shared settings file to namespace
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 import settings
+from storage.storage_mysql import StorageMysql
 
 REDIS_CONN = redis.StrictRedis(unix_socket_path=settings.REDIS_SOCKET_PATH)
 
@@ -49,6 +51,17 @@ def data():
         resp = json.dumps({'results': error})
         return resp, 500
 
+storage = StorageMysql(settings.STORAGE_MYSQL_HOST, settings.STORAGE_MYSQL_USER,
+            settings.STORAGE_MYSQL_PASS, settings.STORAGE_MYSQL_DB)
+
+@app.route("/api/anomalies", methods=['GET'])
+def anomalies():
+    host = request.args.get('host', None)
+    page = request.args.get('page', 0)
+    limit = request.args.get('limit', 50)
+    anomalies = storage.get_anomalies(host, page, limit)
+    return json.dumps(anomalies)
+
 class App():
     def __init__(self):
         self.stdin_path = '/dev/null'
@@ -72,9 +85,9 @@ if __name__ == "__main__":
 
     webapp = App()
 
-    logger = logging.getLogger("AppLog")
+    logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    formatter = logging.Formatter("%(asctime)s :: %(name)s :: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     handler = logging.FileHandler(settings.LOG_PATH + '/webapp.log')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
