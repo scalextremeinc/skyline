@@ -101,7 +101,14 @@ class StorageMysql(object):
         rows = result.fetch_row(maxrows=200)
         while rows is not None and len(rows):
             for row in rows:
-                anomalies.append([row[0], row[1], row[2]])
+                metric = row[0]
+                ts = int(row[1])
+                value = row[2]
+                try:
+                    value = float(value)
+                except:
+                    pass
+                anomalies.append([metric, ts, value])
             rows = result.fetch_row(maxrows=200)
             
         return anomalies
