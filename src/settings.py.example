@@ -194,3 +194,7 @@ STORAGE_MYSQL_DB = 'skyline'
 
 ALERT_CONFIG_TIME = 900
 ALERT_AGGREGATE_TIME = 180
+
+# if end time is older than (now - TSDB_QUERY_CONDITION) this we query tsdb
+TSDB_QUERY_CONDITION = 3600
+TSDB_URL = 'http://108.166.56.222:4242'

@@ -50,9 +50,9 @@ def timeseries():
     start_time = int(start_time)
     end_time = int(end_time)
     if end_time + settings.TSDB_QUERY_CONDITION <= time.time():
-        timeseries = get_data_redis(host, metric)
-    else:
         timeseries = get_data_tsdb(host, metric, start_time, end_time)
+    else:
+        timeseries = get_data_redis(host, metric)
     
     resp = json.dumps(timeseries)
     return resp, 200
