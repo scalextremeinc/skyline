@@ -34,7 +34,8 @@ class StorageMysql(object):
         ts = anomaly[2]
         hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host_name)
         metricid = self.__get_id(StorageMysql.TABLE_METRICS, self.metric_cache, metric_name)
-        self.__insert_anomaly(hostid, metricid, value, ts)
+        hour = int(ts / 3600)
+        self.__insert_anomaly(hostid, metricid, value, ts, hour)
     
     def __split_metric(self, metric):
         i = metric.rfind('@')
@@ -65,9 +66,9 @@ class StorageMysql(object):
         conn = self.mysql.query(q)
         return conn.insert_id()
     
-    def __insert_anomaly(self, hostid, metricid, value, ts):
-        q = "INSERT INTO %s VALUES(%s, %s, %s, %s)" \
-            % (StorageMysql.TABLE_ANOMALIES, hostid, metricid, value, ts)
+    def __insert_anomaly(self, hostid, metricid, value, ts, hour):
+        q = "INSERT INTO %s VALUES(%s, %s, %s, %s, %s)" \
+            % (StorageMysql.TABLE_ANOMALIES, hostid, metricid, value, ts, hour)
         LOG.debug(q)
         self.mysql.query(q)
     
@@ -90,8 +91,10 @@ class StorageMysql(object):
     
     def get_anomalies(self, host, start_time, end_time):
         hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host)
-        q = "SELECT m.value, a.ts, a.value FROM %s as m, %s as a WHERE a.metricid=m.id AND hostid=%s AND a.ts BETWEEN %s AND %s ORDER BY ts DESC" \
-            % (self.TABLE_METRICS, self.TABLE_ANOMALIES, hostid, start_time, end_time)
+        start_hour = int(start_time / 3600)
+        end_hour = int(end_time / 3600)
+        q = "SELECT m.value, a.ts, a.value FROM %s as m, %s as a WHERE a.metricid=m.id AND hostid=%s AND a.hour BETWEEN %s AND %s ORDER BY ts DESC" \
+            % (self.TABLE_METRICS, self.TABLE_ANOMALIES, hostid, start_hour, end_hour)
         LOG.debug(q)
         conn = self.mysql.query(q)
         result = conn.use_result()
