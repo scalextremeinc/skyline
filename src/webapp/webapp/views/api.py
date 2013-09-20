@@ -53,12 +53,12 @@ def timeseries():
     if end_time + settings.TSDB_QUERY_CONDITION <= time.time():
         timeseries = get_data_tsdb(host, metric, start_time, end_time)
     else:
-        timeseries = get_data_redis(host, metric)
+        timeseries = get_data_redis(host, metric, start_time, end_time)
     
     resp = json.dumps(timeseries)
     return resp, 200
 
-def get_data_redis(host, metric):
+def get_data_redis(host, metric, start_time, end_time):
     timeseries = []
     try:
         redis_metric = settings.FULL_NAMESPACE + metric + '@' + host
@@ -66,7 +66,11 @@ def get_data_redis(host, metric):
         raw_series = REDIS.get(redis_metric)
         unpacker = Unpacker(use_list = False)
         unpacker.feed(raw_series)
-        timeseries = [item[:2] for item in unpacker]
+        for item in unpacker:
+            ts = item[0]
+            if ts < start_time or ts > end_time:
+                continue
+            timeseries.append(item[:2])
     except:
         LOG.exception("Failed getting data from redis")
     

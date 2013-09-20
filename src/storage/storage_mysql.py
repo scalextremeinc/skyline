@@ -104,8 +104,10 @@ class StorageMysql(object):
         rows = result.fetch_row(maxrows=200)
         while rows is not None and len(rows):
             for row in rows:
-                metric = row[0]
                 ts = int(row[1])
+                if ts < start_time or ts > end_time:
+                    continue
+                metric = row[0]
                 value = row[2]
                 try:
                     value = float(value)
