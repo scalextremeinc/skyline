@@ -57,7 +57,7 @@ def timeseries():
     resp = json.dumps(timeseries)
     return resp, 200
 
-def get_data_redis(metric):
+def get_data_redis(host, metric):
     timeseries = []
     try:
         redis_metric = FULL_NAMESPACE + metric + '@' + host
