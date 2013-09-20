@@ -93,7 +93,7 @@ class StorageMysql(object):
         hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host)
         start_hour = int(start_time / 3600)
         end_hour = int(end_time / 3600)
-        q = "SELECT m.value, a.ts, a.value FROM %s as m, %s as a WHERE a.metricid=m.id AND hostid=%s AND a.hour BETWEEN %s AND %s ORDER BY ts DESC" \
+        q = "SELECT m.value, a.ts, a.value FROM %s as m, %s as a WHERE a.metricid=m.id AND a.hostid=%s AND a.hour BETWEEN %s AND %s ORDER BY ts" \
             % (self.TABLE_METRICS, self.TABLE_ANOMALIES, hostid, start_hour, end_hour)
         LOG.debug(q)
         conn = self.mysql.query(q)
