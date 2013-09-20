@@ -4,6 +4,7 @@ import urllib
 import urllib2
 import redis
 import simplejson as json
+from msgpack import Unpacker
 from flask import request
 
 from monitorqueue.metric_mapper import ZabbixMetricMapper, SingleTagMapper, PerfCounterMapper
