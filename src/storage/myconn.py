@@ -29,9 +29,11 @@ class MyConn(object):
         return self.mysql
     
     def query(self, q):
+        LOG.debug("QUERY: %s", q)
         try:
             self.mysql.query(q)
         except:
+            LOG.exception('Query failed')
             self.connect()
             self.last_connect = time.time()
             self.mysql.query(q)

@@ -88,21 +88,20 @@ class StorageMysql(object):
         
         return cfg
     
-    def get_anomalies(self, host, page=0, limit=50):
-        offset = page * limit
+    def get_anomalies(self, host, start_time, end_time):
         hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host)
-        q = "SELECT m.value, a.ts FROM %s as m, %s as a WHERE a.metricid=m.id AND hostid=%s ORDER BY ts DESC LIMIT %s OFFSET %s" \
-            % (self.TABLE_METRICS, self.TABLE_ANOMALIES, hostid, limit, offset)
+        q = "SELECT m.value, a.ts, a.value FROM %s as m, %s as a WHERE a.metricid=m.id AND hostid=%s AND a.ts BETWEEN %s AND %s ORDER BY ts DESC" \
+            % (self.TABLE_METRICS, self.TABLE_ANOMALIES, hostid, start_time, end_time)
         LOG.debug(q)
         conn = self.mysql.query(q)
         result = conn.use_result()
         
         anomalies = []
         
-        rows = result.fetch_row(maxrows=limit)
+        rows = result.fetch_row(maxrows=200)
         while rows is not None and len(rows):
             for row in rows:
-                anomalies.append([row[0], row[1]])
-            rows = result.fetch_row(maxrows=limit)
+                anomalies.append([row[0], row[1], row[2]])
+            rows = result.fetch_row(maxrows=200)
             
         return anomalies
