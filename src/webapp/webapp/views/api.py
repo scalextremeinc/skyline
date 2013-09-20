@@ -60,7 +60,7 @@ def timeseries():
 def get_data_redis(host, metric):
     timeseries = []
     try:
-        redis_metric = FULL_NAMESPACE + metric + '@' + host
+        redis_metric = settings.FULL_NAMESPACE + metric + '@' + host
         LOG.debug('Redis query, metric: %s', redis_metric)
         raw_series = REDIS.get(redis_metric)
         unpacker = Unpacker(use_list = False)
