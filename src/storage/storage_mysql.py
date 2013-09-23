@@ -121,20 +121,25 @@ class StorageMysql(object):
         
         anomalies = []
         
-        rows = result.fetch_row(maxrows=200)
-        while rows is not None and len(rows):
-            for row in rows:
-                ts = int(row[1])
-                if ts < start_time or ts > end_time:
-                    continue
-                metric = self.__get_value(self.TABLE_METRICS, self.metric_name_cache, row[0])
-                value = row[2]
-                try:
-                    value = float(value)
-                except:
-                    pass
-                anomalies.append([metric, ts, value])
-            rows = result.fetch_row(maxrows=200)
+        rows = []
+        fetched = result.fetch_row(maxrows=500)
+        rows.extend(fetched)
+        while fetched is not None and len(rows):
+            fetched = result.fetch_row(maxrows=500)
+            if fetched:
+                rows.extend(fetched)
+        
+        for row in rows:
+            ts = int(row[1])
+            if ts < start_time or ts > end_time:
+                continue
+            metric = self.__get_value(self.TABLE_METRICS, self.metric_name_cache, row[0])
+            value = row[2]
+            try:
+                value = float(value)
+            except:
+                pass
+            anomalies.append([metric, ts, value])
             
         return anomalies
     
