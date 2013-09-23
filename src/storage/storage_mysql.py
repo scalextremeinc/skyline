@@ -20,6 +20,7 @@ class StorageMysql(object):
         self.mysql_port = mysql_port
         self.host_cache = dict()
         self.metric_cache = dict()
+        self.metric_name_cache = dict()
         self.mysql = myconn.MyConn(host=self.mysql_host, port=self.mysql_port,
             user=self.mysql_user, passwd=self.mysql_pass, db=self.mysql_db)
         self.mysql.connect()
@@ -50,8 +51,27 @@ class StorageMysql(object):
             cache[value] = id
         return id
     
+    def __get_value(self, table, cache, id):
+        value = cache.get(id)
+        if value is None:
+            value = self.__select_value(table, id)
+            if value is None:
+                raise Exception("Unknown id, table: %s, id: %s" % (table, id))
+            cache[value] = value
+        return value
+    
     def __select_id(self, table, value):
         q = "SELECT id FROM %s WHERE value='%s' LIMIT 1" % (table, self.mysql.escape_string(value))
+        LOG.debug(q)
+        conn = self.mysql.query(q)
+        result = conn.use_result()
+        rows = result.fetch_row(maxrows=1)
+        if rows is not None and len(rows) == 1:
+            return rows[0][0]
+        return None
+    
+    def __select_value(self, table, id):
+        q = "SELECT value FROM %s WHERE id=%s LIMIT 1" % (table, id)
         LOG.debug(q)
         conn = self.mysql.query(q)
         result = conn.use_result()
@@ -93,8 +113,8 @@ class StorageMysql(object):
         hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host)
         start_hour = int(start_time / 3600)
         end_hour = int(end_time / 3600)
-        q = "SELECT m.value, a.ts, a.value FROM %s as m, %s as a WHERE a.metricid=m.id AND a.hostid=%s AND a.hour BETWEEN %s AND %s ORDER BY ts" \
-            % (self.TABLE_METRICS, self.TABLE_ANOMALIES, hostid, start_hour, end_hour)
+        q = "SELECT metricid, ts, value FROM %s WHERE hostid=%s AND hour BETWEEN %s AND %s ORDER BY ts" \
+            % (self.TABLE_ANOMALIES, hostid, start_hour, end_hour)
         LOG.debug(q)
         conn = self.mysql.query(q)
         result = conn.use_result()
@@ -107,13 +127,48 @@ class StorageMysql(object):
                 ts = int(row[1])
                 if ts < start_time or ts > end_time:
                     continue
-                metric = row[0]
+                metric = self.__get_value(self.TABLE_METRICS, self.metric_name_cache, row[0])
                 value = row[2]
                 try:
                     value = float(value)
                 except:
                     pass
                 anomalies.append([metric, ts, value])
+            rows = result.fetch_row(maxrows=200)
+            
+        return anomalies
+    
+    def get_anomalies_batch(self, hosts, start_time, end_time):
+        host_map = {}
+        hostids = []
+        for host in hosts:
+            hostid = self.__get_id(StorageMysql.TABLE_HOSTS, self.host_cache, host)
+            hostids.append(str(hostid))
+            host_map[hostid] = host
+        start_hour = int(start_time / 3600)
+        end_hour = int(end_time / 3600)
+        q = "SELECT hostid, metricid, ts, value FROM %s WHERE hostid IN (%s) AND hour BETWEEN %s AND %s ORDER BY ts" \
+            % (self.TABLE_ANOMALIES, ','.join(hostids), start_hour, end_hour)
+        LOG.debug(q)
+        conn = self.mysql.query(q)
+        result = conn.use_result()
+        
+        anomalies = []
+        
+        rows = result.fetch_row(maxrows=200)
+        while rows is not None and len(rows):
+            for row in rows:
+                ts = int(row[1])
+                if ts < start_time or ts > end_time:
+                    continue
+                host = host_map[row[0]]
+                metric = self.__get_value(self.TABLE_METRICS, self.metric_name_cache, row[1])
+                value = row[2]
+                try:
+                    value = float(value)
+                except:
+                    pass
+                anomalies.append([host, metric, ts, value])
             rows = result.fetch_row(maxrows=200)
             
         return anomalies

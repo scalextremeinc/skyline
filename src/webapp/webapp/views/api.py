@@ -38,6 +38,18 @@ def anomalies():
     anomalies = STORAGE.get_anomalies(host, int(start_time), int(end_time))
     return json.dumps(anomalies), 200
 
+@app.route("/api/anomalies", methods=['POST'])
+def anomalies_batch():
+    host = request.form.get('host')
+    start_time = request.form.get('start_time')
+    end_time = request.form.get('end_time')
+    if not host or not start_time or not end_time:
+        resp = json.dumps({'results': 'Error: host, start_time, end_time params required'})
+        return resp, 400
+    host = host.split(',')
+    anomalies = STORAGE.get_anomalies_batch(host, int(start_time), int(end_time))
+    return json.dumps(anomalies), 200
+
 @app.route("/api/timeseries", methods=['GET'])
 def timeseries():
     host = request.args.get('host')
