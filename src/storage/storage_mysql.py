@@ -135,20 +135,20 @@ class StorageMysql(object):
         
         anomalies = []
         
-        rows = result.fetch_row(maxrows=200)
+        rows = result.fetch_row(maxrows=500)
         while rows is not None and len(rows):
             for row in rows:
-                ts = int(row[1])
+                ts = int(row[2])
                 if ts < start_time or ts > end_time:
                     continue
                 host = host_map[row[0]]
                 metric = row[1]
-                value = row[2]
+                value = row[3]
                 try:
                     value = float(value)
                 except:
                     pass
                 anomalies.append([host, metric, ts, value])
-            rows = result.fetch_row(maxrows=200)
+            rows = result.fetch_row(maxrows=500)
             
         return anomalies
