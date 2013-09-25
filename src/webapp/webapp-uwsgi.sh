@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo 4096 > /proc/sys/net/core/somaxconn
+
 # see: http://projects.unbit.it/uwsgi/wiki/Doc
 #export UWSGI_SOCKET=0.0.0.0:7273
 export UWSGI_SOCKET=/tmp/skyline-uwsgi.sock
