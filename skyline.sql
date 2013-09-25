@@ -6,7 +6,7 @@ CREATE TABLE `skyline_hosts` (
 
 CREATE TABLE `skyline_metrics` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `vaue` varchar(255) NOT NULL,
+  `value` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
