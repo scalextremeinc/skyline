@@ -1,6 +1,7 @@
 import logging
 import _mysql
-import myconn
+
+from monitorcommon import myconn
 
 LOG = logging.getLogger(__name__)
 
